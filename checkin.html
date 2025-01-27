@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between h-16">
+        <!-- Logo and Company Name -->
+        <div class="flex items-center">
+          <div class="flex-shrink-0 flex items-center">
+            <svg
+              class="h-8 w-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <span class="ml-2 text-xl font-bold text-gray-800"
+              >HR Management System</span
+            >
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="flex items-center">
+          <div class="hidden md:flex items-center space-x-4">
+            <a
+              href="index.html"
+              class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+              >Home</a
+            >
+          
+           
+        </div>
+      </div>
+    </div>
+  </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check-in - Firebase Authentication</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-center text-xl mb-4">Check-in</h2>
+
+        <div id="employeeNameContainer">
+          <input
+            type="text"
+            id="employeeName"
+            placeholder="Employee Name"
+            class="w-full p-2 mb-4 border rounded"
+            readonly
+          />
+        </div>
+        <div id="employeePositionContainer">
+          <input
+            type="text"
+            id="employeePosition"
+            placeholder="Employee Position"
+            class="w-full p-2 mb-4 border rounded"
+            readonly
+          />
+        </div>
+
+        <textarea
+          id="messageInput"
+          placeholder="Type your message here (optional)"
+          class="w-full p-2 mb-4 border rounded"
+        ></textarea>
+
+        <video
+          id="video"
+          class="w-full mb-4 rounded"
+          autoplay
+          playsinline
+        ></video>
+        <canvas id="canvas" class="hidden"></canvas>
+        <img id="capturedPhoto" class="w-full mb-4 rounded hidden" />
+
+        <div class="mb-4">
+          <label for="clockAction" class="block text-sm font-medium"
+            >Clock In/Out</label
+          >
+          <select
+            id="clockAction"
+            class="mt-1 block w-full border border-gray-300 p-2 rounded-md"
+          >
+            <option value="" disabled selected>Select Action</option>
+            <option value="clockIn">Clock In</option>
+            <option value="clockOut" disabled>Clock Out</option>
+          </select>
+        </div>
+
+        <button
+          id="captureButton"
+          class="w-full bg-blue-500 text-white p-2 rounded mb-4"
+        >
+          Take Photo
+        </button>
+        <button
+          id="sendButton"
+          class="w-full bg-green-500 text-white p-2 rounded mb-4"
+        >
+          Send Data
+        </button>
+        <button
+          id="logoutButton"
+          class="w-full bg-red-500 text-white p-2 rounded"
+        >
+          Logout
+        </button>
+
+        <div id="checkinStatus" class="mt-4 text-center hidden"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        update,
+      } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCbex5Xv-wnugzZxpBXg9AaVXbJiFvJrZM",
+        authDomain: "hrgo-41aca.firebaseapp.com",
+        databaseURL:
+          "https://hrgo-41aca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "hrgo-41aca",
+        storageBucket: "hrgo-41aca.firebasestorage.app",
+        messagingSenderId: "753597997405",
+        appId: "1:753597997405:web:1e68f9e73966ff46fac8b4",
+        measurementId: "G-QC8HZT0NZY",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      // Check if user is logged in
+      const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+      if (!currentUser) {
+        window.location.href = "login.html";
+      }
+
+      // DOM elements
+      const employeeNameInput = document.getElementById("employeeName");
+      const employeePositionInput = document.getElementById("employeePosition");
+      const messageInput = document.getElementById("messageInput");
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const capturedPhoto = document.getElementById("capturedPhoto");
+      const checkinStatus = document.getElementById("checkinStatus");
+      const clockActionDropdown = document.getElementById("clockAction");
+
+      let currentPosition = null;
+      let photoData = null;
+
+      // Populate employee details
+      employeeNameInput.value = currentUser.name;
+      employeePositionInput.value = currentUser.position;
+
+      // Check clock status
+      async function checkClockStatus() {
+        const clockStatusRef = ref(database, "clockStatus/" + currentUser.id);
+        const snapshot = await get(clockStatusRef);
+
+        if (snapshot.exists() && snapshot.val().status === "clockIn") {
+          clockActionDropdown.querySelector(
+            'option[value="clockOut"]'
+          ).disabled = false;
+          clockActionDropdown.querySelector(
+            'option[value="clockIn"]'
+          ).disabled = true;
+        } else {
+          clockActionDropdown.querySelector(
+            'option[value="clockOut"]'
+          ).disabled = true;
+          clockActionDropdown.querySelector(
+            'option[value="clockIn"]'
+          ).disabled = false;
+        }
+      }
+      checkClockStatus();
+
+      // Show status message
+      function showStatus(message, type = "success") {
+        if (type === "success") {
+          checkinStatus.className = "mt-4 text-center p-2 rounded bg-green-100";
+        } else {
+          checkinStatus.className = "mt-4 text-center p-2 rounded bg-red-100";
+        }
+        checkinStatus.textContent = message;
+        checkinStatus.classList.remove("hidden");
+        setTimeout(() => checkinStatus.classList.add("hidden"), 5000);
+      }
+
+      // Get location
+      function getLocation() {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            currentPosition = position.coords;
+            console.log("Location fetched:", currentPosition);
+            showStatus("Location fetched successfully!");
+          },
+          (error) => {
+            currentPosition = null;
+            console.log("Location error:", error.message);
+            showStatus("Location error: " + error.message, "error");
+          }
+        );
+      }
+      getLocation();
+
+      // Initialize camera
+      async function initCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          video.srcObject = stream;
+        } catch (error) {
+          showStatus("Camera error: " + error.message, "error");
+        }
+      }
+      initCamera();
+
+      // Clock In/Out action
+      clockActionDropdown.addEventListener("change", async () => {
+        const clockAction = clockActionDropdown.value;
+
+        try {
+          await update(ref(database, "clockStatus/" + currentUser.id), {
+            status: clockAction,
+          });
+          showStatus(
+            `${
+              clockAction === "clockIn" ? "Clocked In" : "Clocked Out"
+            } successfully!`
+          );
+          await checkClockStatus();
+        } catch (error) {
+          showStatus(`Failed to ${clockAction}: ${error.message}`, "error");
+        }
+      });
+
+      // Take photo
+      document.getElementById("captureButton").onclick = () => {
+        const context = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        photoData = canvas.toDataURL("image/jpeg", 0.8);
+        capturedPhoto.src = photoData;
+        video.classList.add("hidden");
+        capturedPhoto.classList.remove("hidden");
+      };
+
+      // Send data
+      document.getElementById("sendButton").onclick = async () => {
+        const message = messageInput.value;
+
+        if (!photoData || !currentPosition) {
+          showStatus("Please take a photo and enable location.", "error");
+          return;
+        }
+
+        try {
+          // Get current date and time
+          const currentDate = new Date();
+          const formattedDate = currentDate.toISOString().split("T")[0];
+          const formattedTime = currentDate.toLocaleTimeString();
+
+          // Upload photo to Firebase Storage (simulated with base64)
+          const photoRef = ref(
+            database,
+            `photos/${currentUser.id}/${Date.now()}`
+          );
+          await update(photoRef, { data: photoData });
+          const photoLink = `photos/${currentUser.id}/${Date.now()}`;
+
+          // Create structured check-in data
+          const checkinData = {
+            [currentUser.id]: {
+              [formattedDate]: {
+                Employee: currentUser.name,
+                ID: currentUser.id,
+                Name: currentUser.name,
+                Status: clockActionDropdown.value,
+                Date: formattedDate,
+                Time: formattedTime,
+                Message: message || "No message",
+                Image: photoLink,
+              },
+            },
+          };
+
+          // Save data to Firebase
+          await update(ref(database, "checkin/"), checkinData);
+          showStatus("Check-in data sent successfully!");
+
+          // Reset the form
+          messageInput.value = "";
+          video.classList.remove("hidden");
+          capturedPhoto.classList.add("hidden");
+          photoData = null;
+        } catch (error) {
+          showStatus("Failed to send data: " + error.message, "error");
+        }
+      };
+
+      // Logout
+      document.getElementById("logoutButton").onclick = () => {
+        sessionStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+      };
+    </script>
+  </body>
+</html>

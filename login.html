@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Firebase Authentication</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <nav class="bg-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between h-16">
+        <!-- Logo and Company Name -->
+        <div class="flex items-center">
+          <div class="flex-shrink-0 flex items-center">
+            <svg
+              class="h-8 w-8 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+            <span class="ml-2 text-xl font-bold text-gray-800"
+              >HR Management System</span
+            >
+          </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="flex items-center">
+          <div class="hidden md:flex items-center space-x-4">
+            <a
+              href="index.html"
+              class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+              >Home</a
+            >
+          
+           
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-center text-xl mb-4">Login</h2>
+        <input
+          type="text"
+          id="employeeId"
+          placeholder="Employee ID"
+          class="w-full p-2 mb-4 border rounded"
+        />
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          class="w-full p-2 mb-4 border rounded"
+        />
+        <button
+          id="loginButton"
+          class="w-full bg-blue-500 text-white p-2 rounded"
+        >
+          Login
+        </button>
+
+        <div id="loginStatus" class="mt-4 text-center hidden"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+      } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCbex5Xv-wnugzZxpBXg9AaVXbJiFvJrZM",
+        authDomain: "hrgo-41aca.firebaseapp.com",
+        databaseURL:
+          "https://hrgo-41aca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "hrgo-41aca",
+        storageBucket: "hrgo-41aca.firebasestorage.app",
+        messagingSenderId: "753597997405",
+        appId: "1:753597997405:web:1e68f9e73966ff46fac8b4",
+        measurementId: "G-QC8HZT0NZY",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      // DOM elements
+      const employeeIdInput = document.getElementById("employeeId");
+      const passwordInput = document.getElementById("password");
+      const loginStatus = document.getElementById("loginStatus");
+
+      // Fetch all users
+      async function fetchUsers() {
+        const usersRef = ref(database, "users");
+        const snapshot = await get(usersRef);
+
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          return Object.values(users);
+        }
+        return [];
+      }
+
+      // Show status message
+      function showStatus(message, type = "success") {
+        if (type === "success") {
+          loginStatus.className = "mt-4 text-center p-2 rounded bg-green-100";
+        } else {
+          loginStatus.className = "mt-4 text-center p-2 rounded bg-red-100";
+        }
+        loginStatus.textContent = message;
+        loginStatus.classList.remove("hidden");
+        setTimeout(() => loginStatus.classList.add("hidden"), 5000);
+      }
+
+      // Login button click
+      document.getElementById("loginButton").onclick = async () => {
+        const employeeId = employeeIdInput.value;
+        const password = passwordInput.value;
+
+        if (!employeeId || !password) {
+          showStatus("Please enter Employee ID and password", "error");
+          return;
+        }
+
+        try {
+          // Fetch all users
+          const users = await fetchUsers();
+
+          // Find matching user
+          const employee = users.find(
+            (user) => user.id === employeeId && user.password === password
+          );
+
+          if (employee) {
+            showStatus("Login successful! Redirecting...", "success");
+
+            // Store employee data in sessionStorage
+            sessionStorage.setItem("currentUser", JSON.stringify(employee));
+
+            // Redirect to check-in page after successful login
+            setTimeout(() => {
+              window.location.href = "checkin.html";
+            }, 2000);
+          } else {
+            showStatus("Invalid Employee ID or password", "error");
+          }
+        } catch (error) {
+          showStatus("Login failed: " + error.message, "error");
+        }
+      };
+    </script>
+  </body>
+</html>

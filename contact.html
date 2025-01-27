@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us - HR Management System</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-50">
+    <!-- Header/Navigation Bar -->
+    <nav class="bg-white shadow-lg">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between h-16">
+          <!-- Logo and Company Name -->
+          <div class="flex items-center">
+            <div class="flex-shrink-0 flex items-center">
+              <svg
+                class="h-8 w-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+              <span class="ml-2 text-xl font-bold text-gray-800"
+                >HR Management System</span
+              >
+            </div>
+          </div>
+
+          <!-- Navigation Links -->
+          <div class="flex items-center">
+            <div class="hidden md:flex items-center space-x-4">
+              <a
+                href="index.html"
+                class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                >Home</a
+              >
+              <a
+                href="#"
+                class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                >About</a
+              >
+              <a
+                href="contact.html"
+                class="text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                >Contact</a
+              >
+            </div>
+            <div class="ml-4 flex items-center">
+              <a
+                href="login.html"
+                id="loginBtn"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+                >Login</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <!-- Contact Form Section -->
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+          <div class="px-6 py-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+              Contact Us
+            </h2>
+
+            <form id="contactForm" class="space-y-6">
+              <div>
+                <label
+                  for="name"
+                  class="block text-sm font-medium text-gray-700"
+                  >Your Name</label
+                >
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="email"
+                  class="block text-sm font-medium text-gray-700"
+                  >Your Email</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="subject"
+                  class="block text-sm font-medium text-gray-700"
+                  >Subject</label
+                >
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  required
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="message"
+                  class="block text-sm font-medium text-gray-700"
+                  >Message</label
+                >
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="6"
+                  required
+                  class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                ></textarea>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Send Message
+                </button>
+              </div>
+            </form>
+
+            <!-- Status Message -->
+            <div id="statusMessage" class="mt-4 text-center hidden"></div>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="mt-8 bg-white rounded-lg shadow-xl overflow-hidden">
+          <div class="px-6 py-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">
+              Other Ways to Contact Us
+            </h3>
+            <div class="space-y-4">
+              <div class="flex items-center">
+                <svg
+                  class="h-6 w-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                <span class="ml-3 text-gray-600"
+                  >16564memo@kajonkietsuksa.ac.th</span
+                >
+              </div>
+              <div class="flex items-center">
+                <svg
+                  class="h-6 w-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  />
+                </svg>
+                <span class="ml-3 text-gray-600">+66 76 384 000</span>
+              </div>
+              <div class="flex items-center">
+                <svg
+                  class="h-6 w-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span class="ml-3 text-gray-600"
+                  >Kajonkiet Suksa School, Phuket, Thailand</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-12">
+      <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="text-center text-gray-400 text-sm">
+          <p>&copy; 2025 HR Management System. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Handle form submission
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            subject: document.getElementById("subject").value,
+            message: document.getElementById("message").value,
+            to: "16564memo@kajonkietsuksa.ac.th",
+          };
+
+          const statusMessage = document.getElementById("statusMessage");
+
+          try {
+            // Create a mailto link
+            const mailtoLink = `mailto:${
+              formData.to
+            }?subject=${encodeURIComponent(
+              formData.subject
+            )}&body=${encodeURIComponent(
+              `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+            )}`;
+
+            // Open default email client
+            window.location.href = mailtoLink;
+
+            // Show success message
+            statusMessage.textContent =
+              "Email client opened. Please send your message through your email client.";
+            statusMessage.className =
+              "mt-4 text-center p-4 bg-green-100 text-green-700 rounded-md";
+            statusMessage.classList.remove("hidden");
+
+            // Reset form
+            document.getElementById("contactForm").reset();
+          } catch (error) {
+            // Show error message
+            statusMessage.textContent =
+              "Error opening email client. Please try again or contact us directly at 16564memo@kajonkietsuksa.ac.th";
+            statusMessage.className =
+              "mt-4 text-center p-4 bg-red-100 text-red-700 rounded-md";
+            statusMessage.classList.remove("hidden");
+          }
+
+          // Hide status message after 5 seconds
+          setTimeout(() => {
+            statusMessage.classList.add("hidden");
+          }, 5000);
+        });
+
+      // Check login status on page load
+      document.addEventListener("DOMContentLoaded", () => {
+        const loginBtn = document.getElementById("loginBtn");
+        const currentUser = sessionStorage.getItem("currentUser");
+
+        if (currentUser) {
+          loginBtn.textContent = "Logout";
+          loginBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            sessionStorage.removeItem("currentUser");
+            window.location.href = "index.html";
+          });
+        } else {
+          loginBtn.textContent = "Login";
+          loginBtn.href = "login.html";
+        }
+      });
+    </script>
+  </body>
+</html>
