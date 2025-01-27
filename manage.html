@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HR Management Dashboard</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-2xl font-bold mb-6">HR Management Dashboard</h1>
+
+      <!-- Add Employee Button -->
+      <button
+        id="addEmployeeButton"
+        class="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Add Employee
+      </button>
+
+      <!-- Check-ins Table -->
+      <div class="mb-8 bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Check-ins</h2>
+        <table class="w-full table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-gray-200 text-left">
+              <th class="border border-gray-300 px-4 py-2">Date</th>
+              <th class="border border-gray-300 px-4 py-2">Employee ID</th>
+              <th class="border border-gray-300 px-4 py-2">Name</th>
+              <th class="border border-gray-300 px-4 py-2">Status</th>
+              <th class="border border-gray-300 px-4 py-2">Photo</th>
+            </tr>
+          </thead>
+          <tbody id="checkinsTable">
+            <!-- Rows populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Users</h2>
+        <table class="w-full table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr class="bg-gray-200 text-left">
+              <th class="border border-gray-300 px-4 py-2">Employee ID</th>
+              <th class="border border-gray-300 px-4 py-2">Name</th>
+              <th class="border border-gray-300 px-4 py-2">Position</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable">
+            <!-- Rows populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div
+      id="addEmployeeModal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 class="text-xl font-semibold mb-4">Add Employee</h2>
+        <form id="addEmployeeForm">
+          <div class="mb-4">
+            <label for="employeeId" class="block text-gray-700 font-semibold"
+              >Employee ID</label
+            >
+            <input
+              type="text"
+              id="employeeId"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label for="employeeName" class="block text-gray-700 font-semibold"
+              >Name</label
+            >
+            <input
+              type="text"
+              id="employeeName"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div class="mb-4">
+            <label
+              for="employeePassword"
+              class="block text-gray-700 font-semibold"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="employeePassword"
+              class="w-full border border-gray-300 rounded px-3 py-2"
+              required
+            />
+          </div>
+          <div class="flex justify-end">
+            <button
+              type="button"
+              id="cancelButton"
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        push,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCbex5Xv-wnugzZxpBXg9AaVXbJiFvJZM",
+        authDomain: "hrgo-41aca.firebaseapp.com",
+        databaseURL:
+          "https://hrgo-41aca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "hrgo-41aca",
+        storageBucket: "hrgo-41aca.appspot.com",
+        messagingSenderId: "753597997405",
+        appId: "1:753597997405:web:1e68f9e73966ff46fac8b4",
+        measurementId: "G-QC8HZT0NZY",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      // Modal Elements
+      const modal = document.getElementById("addEmployeeModal");
+      const addEmployeeButton = document.getElementById("addEmployeeButton");
+      const cancelButton = document.getElementById("cancelButton");
+      const addEmployeeForm = document.getElementById("addEmployeeForm");
+
+      // Show Modal
+      addEmployeeButton.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+      });
+
+      // Hide Modal
+      cancelButton.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      // Handle Form Submission
+      addEmployeeForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const id = document.getElementById("employeeId").value;
+        const name = document.getElementById("employeeName").value;
+        const password = document.getElementById("employeePassword").value;
+
+        // Save to Firebase
+        push(ref(database, "users"), {
+          id,
+          name,
+          password,
+          position: "Employee",
+        });
+
+        addEmployeeForm.reset();
+        modal.classList.add("hidden");
+        alert("Employee added successfully!");
+      });
+
+      // Display check-in data
+      const checkinsTable = document.getElementById("checkinsTable");
+
+      onValue(ref(database, "checkin"), (snapshot) => {
+        checkinsTable.innerHTML = "";
+        const data = snapshot.val();
+
+        if (data) {
+          Object.entries(data).forEach(([key, entry]) => {
+            Object.entries(entry).forEach(([date, details]) => {
+              const row = `
+                <tr>
+                  <td class="border border-gray-300 px-4 py-2">${details.Date}</td>
+                  <td class="border border-gray-300 px-4 py-2">${details.ID}</td>
+                  <td class="border border-gray-300 px-4 py-2">${details.Name}</td>
+                  <td class="border border-gray-300 px-4 py-2">${details.Status}</td>
+                  <td class="border border-gray-300 px-4 py-2">
+                    <img src="${details.Image}" alt="Photo" class="h-16" />
+                  </td>
+                </tr>
+              `;
+              checkinsTable.innerHTML += row;
+            });
+          });
+        }
+      });
+
+      // Display users data
+      const usersTable = document.getElementById("usersTable");
+
+      onValue(ref(database, "users"), (snapshot) => {
+        usersTable.innerHTML = "";
+        const data = snapshot.val();
+
+        if (data) {
+          Object.entries(data).forEach(([key, entry]) => {
+            const row = `
+              <tr>
+                <td class="border border-gray-300 px-4 py-2">${entry.id}</td>
+                <td class="border border-gray-300 px-4 py-2">${entry.name}</td>
+                <td class="border border-gray-300 px-4 py-2">${entry.position}</td>
+              </tr>
+            `;
+            usersTable.innerHTML += row;
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
