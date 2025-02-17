@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task List - HR Management System</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-50">
+    <!-- Same Navigation as above -->
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-lg shadow-xl p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">My Task List</h1>
+
+        <!-- Task List -->
+        <div class="space-y-4" id="taskList">
+          <!-- Tasks will be populated here -->
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+        update,
+      } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCbex5Xv-wnugzZxpBXg9AaVXbJiFvJZM",
+        authDomain: "hrgo-41aca.firebaseapp.com",
+        databaseURL:
+          "https://hrgo-41aca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "hrgo-41aca",
+        storageBucket: "hrgo-41aca.appspot.com",
+        messagingSenderId: "753597997405",
+        appId: "1:753597997405:web:1e68f9e73966ff46fac8b4",
+        measurementId: "G-QC8HZT0NZY",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+
+      // Get current user from session storage
+      const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+      const taskList = document.getElementById("taskList");
+
+      if (!currentUser) {
+        window.location.href = "login.html";
+      }
+
+      // Load tasks for current user
+      onValue(ref(database, "tasks"), (snapshot) => {
+        taskList.innerHTML = "";
+        const data = snapshot.val();
+
+        if (data) {
+          Object.entries(data).forEach(([key, task]) => {
+            if (task.employeeId === currentUser.id) {
+              const taskElement = `
+                <div class="bg-gray-50 p-4 rounded-lg shadow border border-gray-200">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h3 class="font-medium text-gray-900">${
+                        task.description
+                      }</h3>
+                      <p class="text-sm text-gray-500">Due: ${task.date}</p>
+                    </div>
+                    ${
+                      task.status === "Pending"
+                        ? `
+                      <button 
+                        onclick="completeTask('${key}')"
+                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Complete
+                      </button>
+                    `
+                        : `
+                      <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                        Completed
+                      </span>
+                    `
+                    }
+                  </div>
+                </div>
+              `;
+              taskList.innerHTML += taskElement;
+            }
+          });
+
+          // If no tasks found
+          if (taskList.innerHTML === "") {
+            taskList.innerHTML = `
+              <div class="text-center py-8 text-gray-500">
+                No tasks assigned yet.
+              </div>
+            `;
+          }
+        }
+      });
+
+      // Function to mark task as complete
+      window.completeTask = async (taskId) => {
+        await update(ref(database, `tasks/${taskId}`), {
+          status: "Completed",
+        });
+      };
+
+      // Handle login/logout button
+      const loginBtn = document.getElementById("loginBtn");
+      if (currentUser) {
+        loginBtn.textContent = "Logout";
+        loginBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          sessionStorage.removeItem("currentUser");
+          window.location.href = "index.html";
+        });
+      }
+    </script>
+  </body>
+</html>
